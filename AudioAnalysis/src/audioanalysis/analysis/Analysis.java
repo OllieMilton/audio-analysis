@@ -1,37 +1,32 @@
 package audioanalysis.analysis;
 
 import java.io.File;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
+import java.io.IOException;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
-import com.google.common.io.LittleEndianDataInputStream;
-
 public class Analysis {
 	
 	public static void main(String[] args) throws Exception {
 		Analysis a = new Analysis();
-		AudioInputStream in = AudioSystem.getAudioInputStream(new File("C:\\java\\test2.wav"));
-		if (in.getFormat().matches(new AudioFormat(in.getFormat().getSampleRate(), 16, in.getFormat().getChannels(), true, false))) {
-			int samplesPerSec = ((int)in.getFormat().getSampleRate() * 2) * in.getFormat().getChannels();
-			for (int i=0; i < 10; i++) {
-				byte[] buffer = new byte[samplesPerSec/2];
-				in.read(buffer);
-				AudioLevel level = a.getLevel(a.getWindow(buffer));
+		AudioInputStream in = AudioSystem.getAudioInputStream(new File("C:\\java\\test.wav"));
+		a.analise(in);
+	}
+
+	public void analise(AudioInputStream audio) throws IOException {
+		AudioFormat format = audio.getFormat();
+		if (format.matches(new AudioFormat(format.getSampleRate(), 16, format.getChannels(), true, false))) {
+			// sample rate * bytes per sample * no of channels
+			int samplesPerSec = ((int)audio.getFormat().getSampleRate() * 2) * audio.getFormat().getChannels();
+			for (int i=0; i < 100; i++) {
+				byte[] buffer = new byte[samplesPerSec/10];
+				audio.read(buffer);
+				AudioLevel level = getLevel(getWindow(buffer));
 				System.out.println("left: "+level.leftDb);
 				System.out.println("right: "+level.rightDb);
 			}
-		}
-	}
-
-	public void analise(AudioInputStream audio) {
-		AudioFormat format = audio.getFormat();
-		if (format.matches(new AudioFormat(format.getSampleRate(), 16, format.getChannels(), true, false))) {
-			LittleEndianDataInputStream stream = new LittleEndianDataInputStream(audio);
-			
 		}
 	}
 	
