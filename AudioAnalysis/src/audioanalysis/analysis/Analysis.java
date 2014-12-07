@@ -1,6 +1,8 @@
 package audioanalysis.analysis;
 
 import java.io.File;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -12,11 +14,11 @@ public class Analysis {
 	
 	public static void main(String[] args) throws Exception {
 		Analysis a = new Analysis();
-		AudioInputStream in = AudioSystem.getAudioInputStream(new File("C:\\java\\test.wav"));
+		AudioInputStream in = AudioSystem.getAudioInputStream(new File("C:\\java\\test2.wav"));
 		if (in.getFormat().matches(new AudioFormat(in.getFormat().getSampleRate(), 16, in.getFormat().getChannels(), true, false))) {
 			int samplesPerSec = ((int)in.getFormat().getSampleRate() * 2) * in.getFormat().getChannels();
 			for (int i=0; i < 10; i++) {
-				byte[] buffer = new byte[samplesPerSec];
+				byte[] buffer = new byte[samplesPerSec/2];
 				in.read(buffer);
 				AudioLevel level = a.getLevel(a.getWindow(buffer));
 				System.out.println("left: "+level.leftDb);
@@ -39,13 +41,13 @@ public class Analysis {
 	}
 	
 	public AudioLevel getLevel(float[] window) {
-		float lsum = 0.0f;
-		float rsum = 0.0f;
+		double lsum = 0.0f;
+		double rsum = 0.0f;
 		for (int i=0; i<window.length; i++) {
 			if (i % 2 == 0) {
-				lsum *= window[i];
+				lsum += (window[i] * window[i]);
 			} else {
-				rsum *= window[i];
+				rsum += (window[i] * window[i]);
 			}
 		}
 		AudioLevel level = new AudioLevel();
@@ -59,7 +61,7 @@ public class Analysis {
 	public float[] getWindow(byte[] buffer) {
 		float[] result = new float[buffer.length/2];
 		for (int i=1, j=0; i<buffer.length; i+=2, j++) {
-			result[j] = calcFloat(buffer[i-1], buffer[i]); 
+			result[j] = (1.0f/32768.0f) * ((float)littleEndian(buffer[i-1], buffer[i])) ; 
 		}
 		return result;
 	}
