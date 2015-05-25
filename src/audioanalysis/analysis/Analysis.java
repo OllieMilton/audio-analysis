@@ -11,23 +11,23 @@ public class Analysis {
 	
 	public static void main(String[] args) throws Exception {
 		Analysis a = new Analysis();
-		AudioInputStream in = AudioSystem.getAudioInputStream(new File("C:\\java\\test.wav"));
+		AudioInputStream in = AudioSystem.getAudioInputStream(new File("/home/ollie/track-3.wav"));
 		a.analise(in);
 	}
 
 	public void analise(AudioInputStream audio) throws IOException {
 		AudioFormat format = audio.getFormat();
-		if (format.matches(new AudioFormat(format.getSampleRate(), 16, format.getChannels(), true, false))) {
+		//if (format.matches(new AudioFormat(format.getSampleRate(), 16, format.getChannels(), true, false))) {
 			// sample rate * bytes per sample * no of channels
 			int samplesPerSec = ((int)audio.getFormat().getSampleRate() * 2) * audio.getFormat().getChannels();
-			for (int i=0; i < 100; i++) {
+			for (int i=0; i < 1000; i++) {
 				byte[] buffer = new byte[samplesPerSec/10];
 				audio.read(buffer);
 				AudioLevel level = getLevel(getWindow(buffer));
-				System.out.println("left: "+level.leftDb);
-				System.out.println("right: "+level.rightDb);
+				System.out.println(i+" left: "+level.leftDb);
+				System.out.println(i+" right: "+level.rightDb);
 			}
-		}
+		//}
 	}
 	
 	class AudioLevel {
